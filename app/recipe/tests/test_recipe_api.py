@@ -211,6 +211,19 @@ class RecipeAPITests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(recipe.ingredients.count(), 0)
 
+    def test_filter_recipes_by_name(self) -> None:
+        """Test get a recipe with name filter"""
+        create_recipe(name='Bacon Butty')
+        payload = {'name': 'Baco'}
+
+        res = self.client.get(RECIPES_URL, payload)
+
+        recipes = Recipe.objects.filter(name__startswith=payload['name'])
+        serializer = RecipeSerializer(recipes, many=True)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data, serializer.data)
+
     def test_error_get_nonexistant_recipe(self) -> None:
         """Test error when retrieving a nonexisting recipe"""
         res = self.client.get(f'{RECIPES_URL}100/')

@@ -14,7 +14,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
 
     def get_queryset(self):
-        return self.queryset.all().order_by('-name')
+        name = self.request.query_params.get('ingredients')
+        queryset = self.queryset
+
+        if name:
+            queryset = queryset.filter(name__startswith=name)
+        return queryset.all().order_by('-name')
 
 
 class IngredientViewSet(viewsets.GenericViewSet):
